@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S.TATI - Картины с душой | Живопись на заказ</title>
+    <meta
+      name="description"
+      content="Картины на заказ с душой от S.TATI. Индивидуальная живопись, портреты животных, крупные форматы."
+    />
+    <meta
+      name="keywords"
+      content="картины, живопись, заказ, искусство, портреты, животные"
+    />
+    <meta property="og:title" content="S.TATI - Картины с душой" />
+    <meta
+      property="og:description"
+      content="Картины на заказ с душой от S.TATI"
+    />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="gallery-page">
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+      <div class="header-container">
+        <div class="logo">
+          <a href="index.html#hero" class="logo-text">S.TATI</a>
+        </div>
+
+        <nav class="nav-menu" id="navMenu">
+          <a href="index.html#hero" class="nav-link">Главная</a>
+          <a href="index.html#how-we-work" class="nav-link">Как работаем</a>
+          <a href="index.html#marquee" class="nav-link">Услуги</a>
+          <a href="#hero" class="nav-link">Работы</a>
+          <a href="index.html#footer" class="nav-link">Контакты</a>
+        </nav>
+
+        <button
+          class="burger-menu"
+          id="burgerMenu"
+          onclick="toggleMenu()"
+          aria-label="Открыть меню"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Side Menu -->
+    <div
+      class="mobile-menu-overlay"
+      id="mobileMenuOverlay"
+      onclick="toggleMenu()"
+    ></div>
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-header">
+        <span class="mobile-logo">S.TATI</span>
+        <button
+          class="close-menu"
+          onclick="toggleMenu()"
+          aria-label="Закрыть меню"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav class="mobile-nav">
+        <a
+          href="index.html#hero"
+          class="mobile-nav-link"
+          onclick="toggleMenu()"
+        >
+          <i class="fas fa-home"></i> Главная
+        </a>
+        <a
+          href="index.html#how-we-work"
+          class="mobile-nav-link"
+          onclick="toggleMenu()"
+        >
+          <i class="fas fa-cogs"></i> Как работаем
+        </a>
+        <a
+          href="index.html#marquee"
+          class="mobile-nav-link"
+          onclick="toggleMenu()"
+        >
+          <i class="fas fa-list"></i> Услуги
+        </a>
+        <a href="gallery.html" class="mobile-nav-link" onclick="toggleMenu()">
+          <i class="fas fa-list"></i> Работы
+        </a>
+        <a
+          href="index.html#footer"
+          class="mobile-nav-link"
+          onclick="toggleMenu()"
+        >
+          <i class="fas fa-envelope"></i> Контакты
+        </a>
+      </nav>
+    </div>
+
+    <section class="gallery" id="hero">
+      <h1>Наши работы</h1>
+
+      <div class="masonry"></div>
+    </section>
+    <!-- ===== PASSWORD MODAL ===== -->
+    <div class="admin-modal" id="passwordModal">
+      <div class="admin-box">
+        <h3 id="adminTitle">Введите пароль</h3>
+        <input type="password" id="adminPassword" placeholder="Пароль" />
+        <button onclick="checkPassword()">Войти</button>
+      </div>
+    </div>
+
+    <!-- ===== UPLOAD MODAL ===== -->
+    <div class="admin-modal" id="uploadModal">
+      <div class="admin-box">
+        <h3>Загрузка изображений</h3>
+
+        <div class="upload-area" id="uploadArea">
+          <div class="upload-content">
+            <div class="plus">+</div>
+            <p>Перетащите PNG сюда или нажмите</p>
+          </div>
+          <input type="file" id="fileInput" accept="image/png" multiple />
+        </div>
+        <input type="text" id="imageTitle" placeholder="Название картины" />
+
+        <button onclick="closeUpload()">Закрыть</button>
+      </div>
+    </div>
+    <link rel="stylesheet" href="../css/gallery.css" />
+    <script src="../js/gallery-script.js" defer></script>
+  </body>
+</html>

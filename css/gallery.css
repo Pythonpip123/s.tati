@@ -1,0 +1,590 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+/* Скрыть скроллбар (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Firefox */
+html {
+  scrollbar-width: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  font-family: "Montserrat", "Arial", sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+  color: #333;
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+/* Scroll Progress Indicator */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 3px;
+
+  background: linear-gradient(90deg, #ff0000, #ff69b4, #ffd700, #00ffcc);
+
+  z-index: 9999;
+
+  /* Apple стиль */
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+
+  border-radius: 0 4px 4px 0;
+
+  transition: width 0.15s ease-out;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.header.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* бургер тоже чёрный */
+.burger-menu span {
+  background: #000;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.logo {
+  position: absolute;
+  left: 30px;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff0000 0%, #ff69b4 50%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  text-decoration: none;
+  display: inline-block; /* чтобы hover работал красиво */
+}
+
+.logo-text:hover {
+  transform: scale(1.05);
+}
+
+/* Navigation - По центру */
+.nav-menu {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+
+.nav-link {
+  color: #000000;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  position: relative;
+  padding: 5px 0;
+  transition: color 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ff0000, #ff69b4);
+  transition: width 0.3s;
+}
+
+.nav-link:hover {
+  color: #ff0000;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Header scrolled - тёмные ссылки */
+.header.scrolled .nav-link {
+  color: #333;
+}
+
+/* Burger Menu - Hidden on Desktop */
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 1001;
+}
+
+.burger-menu span {
+  width: 25px;
+  height: 3px;
+  background: #fff;
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+
+.header.scrolled .burger-menu span {
+  background: #333;
+}
+
+.burger-menu.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.burger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger-menu.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile Side Menu */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  z-index: 1002;
+  transition: right 0.3s ease;
+  padding: 20px;
+  box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-menu.active {
+  right: 0;
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 30px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 30px;
+}
+
+.mobile-logo {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ffd700 0%, #ff69b4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.close-menu {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.3s;
+}
+
+.close-menu:hover {
+  transform: scale(1.2);
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mobile-nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 15px 20px;
+  border-radius: 10px;
+  transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.mobile-nav-link i {
+  width: 20px;
+  text-align: center;
+}
+
+.mobile-nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  padding-left: 30px;
+}
+
+/* отступ под фиксированный header */
+.gallery {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+/* ===== ЗАГОЛОВОК ===== */
+.gallery h1 {
+  text-align: center;
+  font-size: 42px;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+}
+
+/* ===== MASONRY (Pinterest стиль) ===== */
+.masonry {
+  column-count: 4;
+  column-gap: 20px;
+}
+
+.masonry img {
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  cursor: pointer;
+
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  transition: all 0.6s ease;
+}
+
+.masonry img.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ===== HOVER ===== */
+.masonry img:hover {
+  transform: scale(1.05);
+  filter: brightness(0.9);
+}
+
+/* ===== ПЛАВНАЯ ЗАГРУЗКА ===== */
+body {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+body.loaded {
+  opacity: 1;
+}
+
+body.fade-out {
+  opacity: 0;
+}
+
+/* ===== БУРГЕР МЕНЮ FIX ===== */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Burger Menu - Hidden on Desktop */
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 1001;
+}
+
+.burger-menu span {
+  width: 25px;
+  height: 3px;
+  background: #000000;
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+
+/* ===== ADMIN MODAL ===== */
+.admin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.admin-modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.admin-box {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.admin-box h3 {
+  margin-bottom: 15px;
+}
+
+.admin-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.admin-box button {
+  padding: 10px 20px;
+  border: none;
+  background: #000;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* ===== ERROR ===== */
+.admin-error {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* ===== UPLOAD AREA ===== */
+.upload-area {
+  border: 2px dashed #aaa;
+  border-radius: 16px;
+  padding: 40px;
+  margin: 20px 0;
+  cursor: pointer;
+  position: relative;
+  transition: 0.3s;
+}
+
+.upload-area:hover {
+  border-color: #000;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.upload-content {
+  text-align: center;
+}
+
+.plus {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+
+/* скрываем input */
+#fileInput {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+/* ===== АДАПТИВ ===== */
+@media (max-width: 1200px) {
+  .masonry {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .masonry {
+    column-count: 2;
+  }
+
+  .gallery h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .masonry {
+    column-count: 1;
+  }
+
+  .gallery {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    top: 10px; /* отступ сверху */
+    left: 10px;
+    right: 10px;
+
+    border-radius: 15px;
+
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    transition: padding-right 0.3s ease;
+  }
+
+  .header.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .header-container {
+    padding: 14px 16px;
+  }
+
+  .bg-art {
+    width: 90px;
+  }
+
+  .easel-wrapper {
+    transform: none;
+  }
+
+  .logo {
+    position: absolute;
+    left: 20px;
+  }
+
+  .logo-text {
+    font-size: 24px;
+  }
+
+  .nav-menu {
+    display: none;
+  }
+
+  .burger-menu {
+    display: flex;
+    position: absolute;
+    right: 20px;
+  }
+
+  .burger-menu span {
+    height: 2px;
+    border-radius: 2px;
+  }
+
+  .hero {
+    min-height: 100vh;
+    background-attachment: scroll;
+    padding: 30px 15px;
+    margin-top: 0 !important;
+  }
+
+  .hero-title {
+    font-size: 32px;
+  }
+
+  .hero-text {
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    padding: 15px 35px;
+    font-size: 16px;
+  }
+
+  .section-title {
+    font-size: 32px;
+    margin-bottom: 50px;
+  }
+
+  .how-we-work {
+    padding: 60px 20px;
+  }
+
+  .gallery {
+    padding: 15px 10px 10px; /*верх | бока | низ*/
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+}
