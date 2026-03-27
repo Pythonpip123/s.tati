@@ -284,6 +284,22 @@ document.querySelectorAll("a[href]").forEach((link) => {
   }
 });
 
+// ===== ADMIN HOTKEY (ТОЛЬКО НА INDEX) =====
+document.addEventListener("keydown", (e) => {
+  // проверяем что это index.html
+  const isIndex =
+    window.location.pathname.includes("index.html") ||
+    window.location.pathname === "/";
+
+  if (!isIndex) return;
+
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "f") {
+    e.preventDefault();
+
+    window.location.href = "../php/admin.php";
+  }
+});
+
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
   progressBar = document.getElementById("scrollProgress");

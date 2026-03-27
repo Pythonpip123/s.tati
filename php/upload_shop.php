@@ -1,5 +1,12 @@
 <?php
 
+$secret = "12345";
+
+if ($_POST['password'] !== $secret) {
+    echo json_encode(["error" => "Нет доступа"]);
+    exit;
+}
+
 $uploadDir = "../shop/";
 $dataFile = "../shop-data.json";
 
@@ -21,7 +28,7 @@ if (!in_array($_FILES['file']['type'], $allowedTypes)) {
 
 move_uploaded_file($file['tmp_name'], $targetFile);
 
-$url = $targetFile;
+$url = "../shop/" . $fileName;
 
 // читаем JSON
 $data = [];

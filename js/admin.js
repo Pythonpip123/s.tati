@@ -4,14 +4,27 @@ let adminPassword = "";
 function login() {
   const input = document.getElementById("password");
 
-  if (input.value === "12345") {
-    adminPassword = input.value;
+  fetch("../php/auth.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "password=" + encodeURIComponent(input.value),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        showAdmin();
+      } else {
+        alert(data.error);
+      }
+    });
+}
 
-    document.getElementById("loginBlock").classList.add("hidden");
-    document.getElementById("adminPanel").classList.remove("hidden");
-  } else {
-    alert("Неверный пароль");
-  }
+function logout() {
+  fetch("../php/logout.php").then(() => {
+    location.reload();
+  });
 }
 
 // ===== UPLOAD В ГАЛЕРЕЮ =====
@@ -61,6 +74,7 @@ function uploadShop() {
   formData.append("file", fileInput.files[0]);
   formData.append("title", titleInput.value);
   formData.append("price", priceInput.value);
+  formData.append("password", adminPassword);
 
   fetch("../php/upload_shop.php", {
     method: "POST",
@@ -88,4 +102,19 @@ function showPreview(url, title = "", price = "") {
   `;
 
   preview.prepend(block);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("../php/auth.php")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.auth) {
+        showAdmin();
+      }
+    });
+});
+
+function showAdmin() {
+  document.getElementById("loginBlock").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
 }

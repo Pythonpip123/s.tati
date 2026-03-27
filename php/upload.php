@@ -11,8 +11,10 @@ if ($_POST['password'] !== $secret) {
 if ($_FILES['file']) {
     $file = $_FILES['file'];
 
-    if ($file['type'] !== 'image/png') {
-        echo json_encode(["error" => "Только PNG"]);
+    $allowed = ['image/png', 'image/jpeg', 'image/webp'];
+
+    if (!in_array($file['type'], $allowed)) {
+        echo json_encode(["error" => "Неверный формат"]);
         exit;
     }
     $title = $_POST['title'] ?? '';
