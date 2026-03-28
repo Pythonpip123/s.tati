@@ -1,1 +1,72 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Картина 1",
+    "filename": "g_1.png",
+    "path": "/gallery/g_1.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 2,
+    "name": "Картина 2",
+    "filename": "g_2.png",
+    "path": "/gallery/g_2.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 3,
+    "name": "Картина 3",
+    "filename": "g_3.png",
+    "path": "/gallery/g_3.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 4,
+    "name": "Картина 4",
+    "filename": "g_4.png",
+    "path": "/gallery/g_4.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 5,
+    "name": "Картина 5",
+    "filename": "g_5.png",
+    "path": "/gallery/g_5.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 6,
+    "name": "Картина 6",
+    "filename": "g_6.png",
+    "path": "/gallery/g_6.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 7,
+    "name": "Картина 7",
+    "filename": "g_7.png",
+    "path": "/gallery/g_7.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 8,
+    "name": "Картина 8",
+    "filename": "g_8.png",
+    "path": "/gallery/g_8.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 9,
+    "name": "Картина 9",
+    "filename": "g_9.png",
+    "path": "/gallery/g_9.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  },
+  {
+    "id": 10,
+    "name": "Картина 10",
+    "filename": "g_10.png",
+    "path": "/gallery/g_10.png",
+    "uploaded_at": "2026-03-28 17:00:00"
+  }
+]

@@ -48,14 +48,14 @@ function setupKeyboardShortcut() {
 
 async function handleAdminAccess() {
   try {
-    const res = await fetch("/php/auth.php", {
+    const res = await fetch("../php/auth.php", {
       method: "GET",
       credentials: "include",
     });
     const data = await res.json();
 
     if (data.auth) {
-      window.location.href = "/php/admin.php";
+      window.location.href = "../php/admin.php";
     } else {
       showPasswordModal();
     }
@@ -103,7 +103,7 @@ function showPasswordModal() {
     confirmBtn.textContent = "Проверка...";
 
     try {
-      const res = await fetch("/php/auth.php", {
+      const res = await fetch("../php/auth.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
@@ -113,7 +113,7 @@ function showPasswordModal() {
 
       if (data.success) {
         modal.remove();
-        window.location.href = "/php/admin.php";
+        window.location.href = "../php/admin.php";
       } else {
         showError(data.error || "Ошибка авторизации", modal);
         input.value = "";
@@ -297,7 +297,7 @@ function setupUploadButton() {
     STATUS.style.display = "none";
 
     try {
-      const res = await fetch("/php/upload.php", {
+      const res = await fetch("../php/upload.php", {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -341,7 +341,7 @@ function setupLogout() {
     if (!confirm("Вы точно хотите выйти из админ-панели?")) return;
 
     try {
-      await fetch("/php/auth.php", {
+      await fetch("../php/auth.php", {
         method: "DELETE",
         credentials: "include",
       });
@@ -359,7 +359,7 @@ function startSessionCheck() {
     if (!window.location.pathname.includes("admin.php")) return;
 
     try {
-      const res = await fetch("/php/auth.php", {
+      const res = await fetch("../php/auth.php", {
         method: "GET",
         credentials: "include",
       });

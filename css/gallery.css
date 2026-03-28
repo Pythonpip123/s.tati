@@ -33,17 +33,11 @@ body {
   left: 0;
   width: 0%;
   height: 3px;
-
   background: linear-gradient(90deg, #ff0000, #ff69b4, #ffd700, #00ffcc);
-
   z-index: 9999;
-
-  /* Apple стиль */
   backdrop-filter: blur(10px);
   box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
-
   border-radius: 0 4px 4px 0;
-
   transition: width 0.15s ease-out;
 }
 
@@ -53,7 +47,6 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
-
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
@@ -65,7 +58,6 @@ body {
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* бургер тоже чёрный */
 .burger-menu span {
   background: #000;
 }
@@ -96,14 +88,13 @@ body {
   cursor: pointer;
   transition: transform 0.3s;
   text-decoration: none;
-  display: inline-block; /* чтобы hover работал красиво */
+  display: inline-block;
 }
 
 .logo-text:hover {
   transform: scale(1.05);
 }
 
-/* Navigation - По центру */
 .nav-menu {
   display: flex;
   gap: 40px;
@@ -141,12 +132,10 @@ body {
   width: 100%;
 }
 
-/* Header scrolled - тёмные ссылки */
 .header.scrolled .nav-link {
   color: #333;
 }
 
-/* Burger Menu - Hidden on Desktop */
 .burger-menu {
   display: none;
   flex-direction: column;
@@ -156,14 +145,6 @@ body {
   cursor: pointer;
   padding: 5px;
   z-index: 1001;
-}
-
-.burger-menu span {
-  width: 25px;
-  height: 3px;
-  background: #fff;
-  border-radius: 3px;
-  transition: all 0.3s;
 }
 
 .header.scrolled .burger-menu span {
@@ -182,7 +163,6 @@ body {
   transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* Mobile Side Menu */
 .mobile-menu-overlay {
   display: none;
   position: fixed;
@@ -280,49 +260,98 @@ body {
   padding-left: 30px;
 }
 
-/* отступ под фиксированный header */
 .gallery {
-  max-width: 1500px;
+  max-width: 1520px;
   margin: 0 auto;
+  padding: 26px 22px 30px;
 }
 
-/* ===== ЗАГОЛОВОК ===== */
 .gallery h1 {
   text-align: center;
-  font-size: 42px;
-  margin-bottom: 40px;
+  font-size: clamp(30px, 4vw, 42px);
+  margin-bottom: 34px;
   letter-spacing: 2px;
 }
 
-/* ===== MASONRY (Pinterest стиль) ===== */
-.masonry {
+.gallery-container.masonry {
   column-count: 4;
-  column-gap: 20px;
+  column-gap: 18px;
 }
 
-.masonry img {
-  width: 100%;
-  margin-bottom: 20px;
-  border-radius: 16px;
-  cursor: pointer;
-
+.gallery-container .gallery-card {
+  break-inside: avoid;
+  margin: 0 0 18px;
   opacity: 0;
-  transform: translateY(40px) scale(0.95);
-  transition: all 0.6s ease;
+  transform: translateY(28px);
+  transition:
+    transform 0.5s ease,
+    opacity 0.5s ease,
+    box-shadow 0.35s ease;
 }
 
-.masonry img.show {
+.gallery-container .gallery-card.show {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translateY(0);
 }
 
-/* ===== HOVER ===== */
-.masonry img:hover {
-  transform: scale(1.05);
-  filter: brightness(0.9);
+.gallery-container .gallery-card .gallery-media {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.05)),
+    #f6f6f6;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
 }
 
-/* ===== ПЛАВНАЯ ЗАГРУЗКА ===== */
+.gallery-container .gallery-card .gallery-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 10, 10, 0.64) 0%,
+    rgba(10, 10, 10, 0.24) 22%,
+    rgba(10, 10, 10, 0.06) 42%,
+    rgba(10, 10, 10, 0) 62%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gallery-container .gallery-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+.gallery-container .gallery-card:hover {
+  transform: translateY(-7px);
+}
+
+.gallery-container .gallery-card:hover .gallery-media {
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18);
+}
+
+.gallery-container .gallery-card:hover img {
+  transform: scale(1.04);
+}
+
+.empty,
+.error {
+  text-align: center;
+  font-size: 1rem;
+  padding: 30px 20px;
+  color: #555;
+}
+
+.error {
+  color: #c0392b;
+}
+
 body {
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -336,12 +365,10 @@ body.fade-out {
   opacity: 0;
 }
 
-/* ===== БУРГЕР МЕНЮ FIX ===== */
 .no-scroll {
   overflow: hidden;
 }
 
-/* Burger Menu - Hidden on Desktop */
 .burger-menu {
   display: none;
   flex-direction: column;
@@ -361,7 +388,6 @@ body.fade-out {
   transition: all 0.3s;
 }
 
-/* ===== ADMIN MODAL ===== */
 .admin-modal {
   position: fixed;
   top: 0;
@@ -374,7 +400,6 @@ body.fade-out {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-
   opacity: 0;
   pointer-events: none;
   transition: 0.3s;
@@ -415,14 +440,12 @@ body.fade-out {
   cursor: pointer;
 }
 
-/* ===== ERROR ===== */
 .admin-error {
   color: red;
   font-size: 14px;
   margin-bottom: 10px;
 }
 
-/* ===== UPLOAD AREA ===== */
 .upload-area {
   border: 2px dashed #aaa;
   border-radius: 16px;
@@ -455,7 +478,6 @@ body.fade-out {
   margin: 0 auto 10px;
 }
 
-/* скрываем input */
 #fileInput {
   position: absolute;
   width: 100%;
@@ -466,45 +488,78 @@ body.fade-out {
   cursor: pointer;
 }
 
-/* ===== АДАПТИВ ===== */
+.header-switcher {
+  display: none; /* по умолчанию скрыто */
+  gap: 10px;
+}
+
+.switch-btn {
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #eee;
+  color: #333;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.switch-btn:hover {
+  background: #ddd;
+}
+
+.switch-btn.active {
+  background: #333;
+  color: #fff;
+}
+
+/* ПК версия */
+@media (min-width: 768px) {
+  .header-switcher {
+    display: flex;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+/* Мобильная версия */
+@media (max-width: 767px) {
+  .header-switcher {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
 @media (max-width: 1200px) {
-  .masonry {
+  .gallery-container.masonry {
     column-count: 3;
   }
 }
 
 @media (max-width: 768px) {
-  .masonry {
+  .gallery-container.masonry {
     column-count: 2;
+    column-gap: 14px;
+  }
+
+  .gallery-container .gallery-card {
+    margin-bottom: 14px;
   }
 
   .gallery h1 {
     font-size: 28px;
   }
-}
 
-@media (max-width: 480px) {
-  .masonry {
-    column-count: 1;
-  }
-
-  .gallery {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-}
-
-@media (max-width: 768px) {
   .header {
-    top: 10px; /* отступ сверху */
+    top: 10px;
     left: 10px;
     right: 10px;
-
     border-radius: 15px;
-
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
     transition: padding-right 0.3s ease;
@@ -513,7 +568,6 @@ body.fade-out {
   .header.scrolled {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
-
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
 
@@ -583,8 +637,19 @@ body.fade-out {
   }
 
   .gallery {
-    padding: 15px 10px 10px; /*верх | бока | низ*/
+    padding: 18px 10px 18px;
     max-width: 1500px;
     margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-container.masonry {
+    column-count: 1;
+  }
+
+  .gallery {
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }

@@ -5,8 +5,11 @@ function toggleMenu() {
   const overlay = document.getElementById("mobileMenuOverlay");
   const burger = document.getElementById("burgerMenu");
 
-  const isOpen = mobileMenu.classList.contains("active");
+  if (!mobileMenu || !overlay || !burger) {
+    return;
+  }
 
+  const isOpen = mobileMenu.classList.contains("active");
   const scrollBarWidth =
     window.innerWidth - document.documentElement.clientWidth;
 
@@ -29,55 +32,55 @@ function toggleMenu() {
   burger.classList.toggle("active");
 }
 
-// ===== ПЛАВНЫЙ ПЕРЕХОД МЕЖДУ СТРАНИЦАМИ =====
-document.querySelectorAll("a[href]").forEach((link) => {
-  const url = link.getAttribute("href");
+function initPageTransitions() {
+  document.querySelectorAll("a[href]").forEach((link) => {
+    const url = link.getAttribute("href");
 
-  if (
-    url &&
-    !url.startsWith("#") &&
-    !url.startsWith("http") &&
-    !link.hasAttribute("target")
-  ) {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
+    if (
+      url &&
+      !url.startsWith("#") &&
+      !url.startsWith("http") &&
+      !link.hasAttribute("target")
+    ) {
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
 
-      document.body.classList.add("fade-out");
+        document.body.classList.add("fade-out");
 
-      setTimeout(() => {
-        window.location.href = url;
-      }, 400);
-    });
+        setTimeout(() => {
+          window.location.href = url;
+        }, 400);
+      });
+    }
+  });
+}
+
+function initItemReveal() {
+  const cards = document.querySelectorAll(".shop-grid .item-card");
+
+  if (!cards.length || typeof IntersectionObserver === "undefined") {
+    cards.forEach((card) => card.classList.add("is-visible"));
+    return;
   }
-});
-
-// ===== PINTEREST АНИМАЦИЯ =====
-function initMasonryAnimation() {
-  const images = document.querySelectorAll(".masonry img");
 
   const observer = new IntersectionObserver(
     (entries) => {
-      entries.forEach((entry, index) => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const el = entry.target;
-
-          setTimeout(() => {
-            el.classList.add("show");
-          }, index * 100);
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
         }
       });
     },
     {
-      threshold: 0.1,
+      threshold: 0.12,
+      rootMargin: "0px 0px -20px 0px",
     },
   );
 
-  images.forEach((img) => {
-    observer.observe(img);
-  });
+  cards.forEach((card) => observer.observe(card));
 }
 
-// ===== КАСТОМНАЯ ПЛАВНАЯ ПОЛОСКА ЗАГРУЗКИ =====
 let progressBar = null;
 let current = 0;
 let target = 0;
@@ -86,7 +89,7 @@ function updateScrollProgress() {
   const scrollTop = window.scrollY;
   const height = document.documentElement.scrollHeight - window.innerHeight;
 
-  target = (scrollTop / height) * 100;
+  target = height > 0 ? (scrollTop / height) * 100 : 0;
 }
 
 function animateProgress() {
@@ -106,7 +109,6 @@ function handleNavigation() {
     link.addEventListener("click", function (e) {
       const href = this.getAttribute("href");
 
-      // только если якорь (локальный)
       if (href === "#hero") {
         e.preventDefault();
 
@@ -119,7 +121,6 @@ function handleNavigation() {
   });
 }
 
-// ===== Scroll Handler (optimized) =====
 function initScrollHandler() {
   let isScrolling = false;
 
@@ -128,9 +129,9 @@ function initScrollHandler() {
 
     if (!isScrolling) {
       requestAnimationFrame(() => {
-        updateBackToTop();
-        updateHeader();
-        updateArrowProgress();
+        if (typeof updateBackToTop === "function") updateBackToTop();
+        if (typeof updateHeader === "function") updateHeader();
+        if (typeof updateArrowProgress === "function") updateArrowProgress();
         isScrolling = false;
       });
 
@@ -139,98 +140,118 @@ function initScrollHandler() {
   });
 }
 
-// Загрузка магазина
-async function loadShop() {
-  const res = await fetch("/php/get-items.php?target=shop");
-  const items = await res.json();
-
-  items.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "item-card";
-    card.innerHTML = `
-            <img src="${item.path}" alt="${escapeHtml(item.name)}">
-            <div class="item-info">
-                <h3 class="item-title">${escapeHtml(item.name)}</h3>
-                <p class="item-price">${formatPrice(item.price)} ₽</p>
-            </div>
-        `;
-    document.querySelector(".shop-container").appendChild(card);
-  });
+function escapeHtml(text) {
+  if (!text) return "";
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function formatPrice(price) {
-  return parseFloat(price).toLocaleString("ru-RU", {
+  const numericPrice = Number.parseFloat(price);
+
+  if (Number.isNaN(numericPrice)) {
+    return "";
+  }
+
+  return numericPrice.toLocaleString("ru-RU", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
 }
 
-function addShopItem(data) {
-  const grid = document.getElementById("shopGrid");
+function normalizeImagePath(path) {
+  if (!path) return "";
 
-  const div = document.createElement("div");
-  div.classList.add("shop-item");
+  if (path.startsWith("/gallery/")) {
+    return `..${path}`;
+  }
 
-  div.innerHTML = `
-    <img src="${data.url}">
-    <div class="shop-info">
-      <h3>${data.title}</h3>
-      <p>${data.price} €</p>
+  return path;
+}
+
+function createShopCard(item) {
+  const imagePath = normalizeImagePath(item.path || item.image || "");
+  const title = item.name || item.title || "Без названия";
+  const price = formatPrice(item.price);
+
+  const card = document.createElement("article");
+  card.className = "item-card shop-card";
+
+  card.innerHTML = `
+    <div class="shop-card-media">
+      <img src="${imagePath}" alt="${escapeHtml(title)}" loading="lazy">
+      <div class="item-info shop-card-info">
+        <div class="shop-card-copy">
+          <h3 class="item-title">${escapeHtml(title)}</h3>
+          <p class="shop-card-subtitle">Оригинальная работа</p>
+        </div>
+        <p class="item-price">${price ? `${price} ₽` : "Цена по запросу"}</p>
+      </div>
     </div>
   `;
 
-  grid.appendChild(div);
+  return card;
 }
 
-document.getElementById("fileInput").addEventListener("change", function () {
-  const file = this.files[0];
+async function loadShop() {
+  const container =
+    document.querySelector(".shop-container") ||
+    document.querySelector(".shop-grid") ||
+    document.getElementById("shopGrid");
 
-  const title = document.getElementById("shopTitle").value;
-  const price = document.getElementById("shopPrice").value;
-
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("title", title);
-  formData.append("price", price);
-
-  fetch("/php/upload-shop.php", {
-    method: "POST",
-    body: formData,
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      addShopItem(data);
-    });
-});
-
-// ===== INIT =====
-document.addEventListener("DOMContentLoaded", () => {
-  const uploadArea = document.getElementById("uploadArea");
-  const fileInput = document.getElementById("fileInput");
-
-  if (!uploadArea || !fileInput) {
+  if (!container) {
+    console.error("Shop container not found");
     return;
   }
 
-  uploadArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-  });
+  container.innerHTML = "";
 
-  uploadArea.addEventListener("drop", (e) => {
-    e.preventDefault();
+  try {
+    const res = await fetch("../php/get-items.php?target=shop");
 
-    handleFiles(e.dataTransfer.files, adminPassword);
-  });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
 
-  uploadArea.addEventListener("click", () => {
-    fileInput.click();
-  });
+    const items = await res.json();
 
-  fileInput.addEventListener("change", () => {
-    handleFiles(fileInput.files, adminPassword);
-  });
+    if (!Array.isArray(items) || items.length === 0) {
+      container.innerHTML = '<p class="shop-state empty">Магазин пока пуст</p>';
+      return;
+    }
+
+    items.forEach((item) => {
+      container.appendChild(createShopCard(item));
+    });
+
+    initItemReveal();
+  } catch (err) {
+    console.error("Failed to load shop:", err);
+    container.innerHTML = `<p class="shop-state error">⚠️ Ошибка загрузки: ${err.message}</p>`;
+  }
+}
+
+window.addEventListener("load", () => {
   document.body.classList.add("loaded");
-  initMasonryAnimation();
-  loadGallery();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  progressBar = document.getElementById("scrollProgress");
+  initPageTransitions();
+  handleNavigation();
+  initScrollHandler();
+  animateProgress();
+  document.body.classList.add("loaded");
+
+  const adminPasswordInput = document.getElementById("adminPassword");
+  if (adminPasswordInput) {
+    adminPasswordInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && typeof checkPassword === "function") {
+        checkPassword();
+      }
+    });
+  }
+
   loadShop();
 });

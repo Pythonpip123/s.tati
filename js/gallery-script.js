@@ -5,6 +5,10 @@ function toggleMenu() {
   const overlay = document.getElementById("mobileMenuOverlay");
   const burger = document.getElementById("burgerMenu");
 
+  if (!mobileMenu || !overlay || !burger) {
+    return;
+  }
+
   const isOpen = mobileMenu.classList.contains("active");
 
   const scrollBarWidth =
@@ -29,7 +33,6 @@ function toggleMenu() {
   burger.classList.toggle("active");
 }
 
-// ===== ПЛАВНЫЙ ПЕРЕХОД МЕЖДУ СТРАНИЦАМИ =====
 document.querySelectorAll("a[href]").forEach((link) => {
   const url = link.getAttribute("href");
 
@@ -51,33 +54,34 @@ document.querySelectorAll("a[href]").forEach((link) => {
   }
 });
 
-// ===== PINTEREST АНИМАЦИЯ =====
 function initMasonryAnimation() {
-  const images = document.querySelectorAll(".masonry img");
+  const cards = document.querySelectorAll(".gallery-container .gallery-card");
+
+  if (!cards.length) {
+    return;
+  }
 
   const observer = new IntersectionObserver(
     (entries) => {
-      entries.forEach((entry, index) => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const el = entry.target;
-
-          setTimeout(() => {
-            el.classList.add("show");
-          }, index * 100);
+          entry.target.classList.add("show");
+          observer.unobserve(entry.target);
         }
       });
     },
     {
-      threshold: 0.1,
+      threshold: 0.08,
+      rootMargin: "0px 0px 60px 0px",
     },
   );
 
-  images.forEach((img) => {
-    observer.observe(img);
+  cards.forEach((card, index) => {
+    card.style.transitionDelay = `${Math.min(index * 45, 240)}ms`;
+    observer.observe(card);
   });
 }
 
-// ===== КАСТОМНАЯ ПЛАВНАЯ ПОЛОСКА ЗАГРУЗКИ =====
 let progressBar = null;
 let current = 0;
 let target = 0;
@@ -86,7 +90,7 @@ function updateScrollProgress() {
   const scrollTop = window.scrollY;
   const height = document.documentElement.scrollHeight - window.innerHeight;
 
-  target = (scrollTop / height) * 100;
+  target = height > 0 ? (scrollTop / height) * 100 : 0;
 }
 
 function animateProgress() {
@@ -106,7 +110,6 @@ function handleNavigation() {
     link.addEventListener("click", function (e) {
       const href = this.getAttribute("href");
 
-      // только если якорь (локальный)
       if (href === "#hero") {
         e.preventDefault();
 
@@ -119,7 +122,6 @@ function handleNavigation() {
   });
 }
 
-// ===== Scroll Handler (optimized) =====
 function initScrollHandler() {
   let isScrolling = false;
 
@@ -128,9 +130,9 @@ function initScrollHandler() {
 
     if (!isScrolling) {
       requestAnimationFrame(() => {
-        updateBackToTop();
-        updateHeader();
-        updateArrowProgress();
+        if (typeof updateBackToTop === "function") updateBackToTop();
+        if (typeof updateHeader === "function") updateHeader();
+        if (typeof updateArrowProgress === "function") updateArrowProgress();
         isScrolling = false;
       });
 
@@ -139,20 +141,46 @@ function initScrollHandler() {
   });
 }
 
-// ===== ГАЛЕРЕЯ: ЗАГРУЗКА КАРТИНОК =====
+function normalizeImagePath(path) {
+  if (!path) return "";
+
+  if (path.startsWith("/gallery/")) {
+    return `..${path}`;
+  }
+
+  return path;
+}
+
+function getAspectRatioClass(item) {
+  const width = Number(item.width) || Number(item.imageWidth) || 0;
+  const height = Number(item.height) || Number(item.imageHeight) || 0;
+
+  if (width && height) {
+    const ratio = width / height;
+
+    if (ratio >= 1.45) return "is-landscape";
+    if (ratio <= 0.8) return "is-portrait";
+    return "is-square";
+  }
+
+  const name = `${item.name || ""} ${item.path || ""}`.toLowerCase();
+
+  if (name.includes("panorama") || name.includes("wide")) {
+    return "is-landscape";
+  }
+
+  return "is-auto";
+}
+
 async function loadGallery() {
   try {
-    // ✅ Проверь правильный путь к API!
-    const res = await fetch("/php/get-items.php?target=gallery");
+    const res = await fetch("../php/get-items.php?target=gallery");
 
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
 
     const items = await res.json();
-    console.log("Gallery items loaded:", items);
-
-    // ✅ Правильный селектор (без пробелов!)
     const container = document.querySelector(".gallery-container");
 
     if (!container) {
@@ -160,34 +188,29 @@ async function loadGallery() {
       return;
     }
 
-    // Очистка
     container.innerHTML = "";
 
-    if (items.length === 0) {
+    if (!Array.isArray(items) || items.length === 0) {
       container.innerHTML = '<p class="empty">Галерея пуста</p>';
       return;
     }
 
-    // Рендер карточек
     items.forEach((item) => {
-      // ✅ Исправлено: => без пробела
-      const card = document.createElement("div"); // ✅ Без пробелов
-      card.className = "item-card";
-
+      const card = document.createElement("article");
+      card.className = `item-card gallery-card ${getAspectRatioClass(item)}`;
       card.innerHTML = `
-                <img src="${item.path}" alt="${escapeHtml(item.name)}" loading="lazy">
-                <div class="item-info">
-                    <h3 class="item-title">${escapeHtml(item.name)}</h3>
-                </div>
-            `;
+        <div class="gallery-media">
+          <img src="${normalizeImagePath(item.path)}" alt="${escapeHtml(item.name)}" loading="lazy">
+          <div class="item-info">
+            <h3 class="item-title">${escapeHtml(item.name)}</h3>
+          </div>
+        </div>
+      `;
 
       container.appendChild(card);
     });
 
-    // Перезапуск анимации появления
-    if (typeof initMasonryAnimation === "function") {
-      initMasonryAnimation();
-    }
+    initMasonryAnimation();
   } catch (err) {
     console.error("Failed to load gallery:", err);
     const container = document.querySelector(".gallery-container");
@@ -208,37 +231,39 @@ window.addEventListener("load", () => {
   document.body.classList.add("loaded");
 });
 
-// ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
+  progressBar = document.getElementById("scrollProgress");
+  handleNavigation();
+  initScrollHandler();
+  animateProgress();
+  document.body.classList.add("loaded");
+
   const uploadArea = document.getElementById("uploadArea");
   const fileInput = document.getElementById("fileInput");
 
-  if (!uploadArea || !fileInput) {
-    return;
+  if (uploadArea && fileInput) {
+    uploadArea.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    uploadArea.addEventListener("drop", (e) => {
+      e.preventDefault();
+
+      if (typeof handleFiles === "function") {
+        handleFiles(e.dataTransfer.files, adminPassword);
+      }
+    });
+
+    uploadArea.addEventListener("click", () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (typeof handleFiles === "function") {
+        handleFiles(fileInput.files, adminPassword);
+      }
+    });
   }
 
-  if (typeof initMasonryAnimation === "function") {
-    initMasonryAnimation();
-  }
-
-  uploadArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-  });
-
-  uploadArea.addEventListener("drop", (e) => {
-    e.preventDefault();
-
-    handleFiles(e.dataTransfer.files, adminPassword);
-  });
-
-  uploadArea.addEventListener("click", () => {
-    fileInput.click();
-  });
-
-  fileInput.addEventListener("change", () => {
-    handleFiles(fileInput.files, adminPassword);
-  });
-  document.body.classList.add("loaded");
-  initMasonryAnimation();
   loadGallery();
 });

@@ -302,7 +302,7 @@ const input = document.getElementById("adminPasswordInput");
 
 if (loginBtn) {
   loginBtn.addEventListener("click", () => {
-    fetch("/php/auth.php", {
+    fetch("../php/auth.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -312,7 +312,7 @@ if (loginBtn) {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          window.location.href = "/php/admin.php";
+          window.location.href = "../php/admin.php";
         } else {
           alert("Неверный пароль");
         }
