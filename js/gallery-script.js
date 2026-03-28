@@ -139,26 +139,66 @@ function initScrollHandler() {
   });
 }
 
-// Загрузка галереи
+// ===== ГАЛЕРЕЯ: ЗАГРУЗКА КАРТИНОК =====
 async function loadGallery() {
-  const res = await fetch("/api/get-items.php?target=gallery");
-  const items = await res.json();
+  try {
+    // ✅ Проверь правильный путь к API!
+    const res = await fetch("/php/get-items.php?target=gallery");
 
-  items.forEach((item) => {
-    const card = document.createElement("div");
-    card.className = "item-card";
-    card.innerHTML = `
-            <img src="${item.path}" alt="${escapeHtml(item.name)}">
-            <div class="item-info">
-                <h3 class="item-title">${escapeHtml(item.name)}</h3>
-                <!-- цены нет в галерее -->
-            </div>
-        `;
-    document.querySelector(".gallery-container").appendChild(card);
-  });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    const items = await res.json();
+    console.log("Gallery items loaded:", items);
+
+    // ✅ Правильный селектор (без пробелов!)
+    const container = document.querySelector(".gallery-container");
+
+    if (!container) {
+      console.error("Container .gallery-container not found!");
+      return;
+    }
+
+    // Очистка
+    container.innerHTML = "";
+
+    if (items.length === 0) {
+      container.innerHTML = '<p class="empty">Галерея пуста</p>';
+      return;
+    }
+
+    // Рендер карточек
+    items.forEach((item) => {
+      // ✅ Исправлено: => без пробела
+      const card = document.createElement("div"); // ✅ Без пробелов
+      card.className = "item-card";
+
+      card.innerHTML = `
+                <img src="${item.path}" alt="${escapeHtml(item.name)}" loading="lazy">
+                <div class="item-info">
+                    <h3 class="item-title">${escapeHtml(item.name)}</h3>
+                </div>
+            `;
+
+      container.appendChild(card);
+    });
+
+    // Перезапуск анимации появления
+    if (typeof initMasonryAnimation === "function") {
+      initMasonryAnimation();
+    }
+  } catch (err) {
+    console.error("Failed to load gallery:", err);
+    const container = document.querySelector(".gallery-container");
+    if (container) {
+      container.innerHTML = `<p class="error">⚠️ Ошибка загрузки: ${err.message}</p>`;
+    }
+  }
 }
 
 function escapeHtml(text) {
+  if (!text) return "";
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
