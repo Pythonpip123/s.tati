@@ -141,7 +141,7 @@ function initScrollHandler() {
 
 // Загрузка магазина
 async function loadShop() {
-  const res = await fetch("/api/get-items.php?target=shop");
+  const res = await fetch("/php/get-items.php?target=shop");
   const items = await res.json();
 
   items.forEach((item) => {

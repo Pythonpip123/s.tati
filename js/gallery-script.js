@@ -217,6 +217,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  if (typeof initMasonryAnimation === "function") {
+    initMasonryAnimation();
+  }
+
   uploadArea.addEventListener("dragover", (e) => {
     e.preventDefault();
   });
