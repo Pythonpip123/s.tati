@@ -15,6 +15,15 @@ const LOGOUT_BTN = document.getElementById("logout-btn");
 
 // === Инициализация ===
 document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("admin") === "1") {
+    // Убираем параметр из URL
+    history.replaceState({}, document.title, window.location.pathname);
+    // Показываем модальный вход
+    if (typeof showPasswordModal === "function") {
+      setTimeout(showPasswordModal, 300);
+    }
+  }
   setupKeyboardShortcut();
   setupDropZone();
   setupTypeSwitcher();
@@ -46,7 +55,7 @@ async function handleAdminAccess() {
     const data = await res.json();
 
     if (data.auth) {
-      window.location.href = "/admin.html";
+      window.location.href = "/php/admin.php";
     } else {
       showPasswordModal();
     }
@@ -104,7 +113,7 @@ function showPasswordModal() {
 
       if (data.success) {
         modal.remove();
-        window.location.href = "/admin.html";
+        window.location.href = "/php/admin.php";
       } else {
         showError(data.error || "Ошибка авторизации", modal);
         input.value = "";
@@ -347,7 +356,7 @@ function setupLogout() {
 // === Проверка сессии ===
 function startSessionCheck() {
   setInterval(async () => {
-    if (!window.location.pathname.includes("admin.html")) return;
+    if (!window.location.pathname.includes("admin.php")) return;
 
     try {
       const res = await fetch("/php/auth.php", {

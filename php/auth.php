@@ -2,11 +2,9 @@
 declare(strict_types=1);
 
 /**
- * auth.php — Админ-аутентификация (PHP 8.4)
- * Поддерживает: application/json И application/x-www-form-urlencoded
+ * auth.php — Админ-аутентификация (совместим с JSON и form-encoded)
  */
 
-// Настройки ошибок
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
@@ -15,97 +13,71 @@ ini_set('error_log', __DIR__ . '/../logs/auth_errors.log');
 // Создаём папку для логов
 $logDir = dirname((string) ini_get('error_log'));
 if (!is_dir($logDir)) {
-    mkdir($logDir, 0755, true);
+    @mkdir($logDir, 0755, true);
 }
 
-// Старт сессии с современными настройками
+// Старт сессии (без deprecated-параметров для PHP 8.4)
 if (session_status() === PHP_SESSION_NONE) {
-    session_start([
-        'cookie_lifetime' => 0,
-        'cookie_httponly' => true,
-        'cookie_secure' => false, // true если только HTTPS
-        'cookie_samesite' => 'Lax',
-        'use_strict_mode' => true,
-        'lazy_write' => true,
-        'sid_length' => 32,
-        'sid_bits_per_character' => 5,
-    ]);
+    ini_set('session.cookie_httponly', '1');
+    ini_set('session.cookie_secure', '0');
+    ini_set('session.cookie_samesite', 'Lax');
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.lazy_write', '1');
+    ini_set('session.use_only_cookies', '1');
+    session_start();
 }
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Пароль администратора (замени на свой!)
-$ADMIN_PASSWORD = getenv('ADMIN_PASS') ?: 'твой_секретный_пароль_123';
+// 🔑 ПАРОЛЬ — ЗАМЕНИ НА СВОЙ!
+$ADMIN_PASSWORD = getenv('ADMIN_PASS') ?: '12345';
 
 /**
  * Отправка JSON-ответа
  */
-function sendJson(array $data, int $httpCode = 200): never
+function sendJson(array $data, int $httpCode = 200): void
 {
     http_response_code($httpCode);
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
 /**
- * Получение входных данных (поддержка JSON + form-encoded)
+ * Получение данных: поддерживает JSON и form-urlencoded
  */
 function getInputData(): array
 {
-    $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
-
-    // Если пришли POST-данные (form-encoded) — используем их
+    // Если есть $_POST — используем его (form-encoded)
     if (!empty($_POST)) {
         return $_POST;
     }
 
+    // Пробуем прочитать сырой ввод
+    $raw = file_get_contents('php://input');
+    if (empty($raw)) {
+        return [];
+    }
+
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+
     // Если JSON — парсим
     if (str_contains($contentType, 'application/json')) {
-        $raw = file_get_contents('php://input');
-        if (empty($raw)) {
-            return [];
-        }
-        return json_decode($raw, true, flags: JSON_THROW_ON_ERROR);
+        $decoded = json_decode($raw, true);
+        return is_array($decoded) ? $decoded : [];
     }
 
-    // fallback: пробуем распарсить как parse_str
-    $raw = file_get_contents('php://input');
-    if (!empty($raw)) {
-        parse_str($raw, $parsed);
-        return $parsed;
-    }
-
-    return [];
+    // Если form-urlencoded — парсим через parse_str
+    parse_str($raw, $parsed);
+    return $parsed;
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
 
-try {
-    match ($method) {
-        'POST' => handleLogin(),
-        'GET' => handleCheckAuth(),
-        'DELETE' => handleLogout(),
-        default => sendJson(['error' => 'Method not allowed', 'allowed' => ['GET', 'POST', 'DELETE']], 405),
-    };
-} catch (Throwable $e) {
-    error_log(sprintf(
-        "[%s] Exception in %s:%d — %s",
-        date('Y-m-d H:i:s'),
-        $e->getFile(),
-        $e->getLine(),
-        $e->getMessage()
-    ));
-    sendJson(['error' => 'Internal server error', 'debug' => $e->getMessage()], 500);
-}
-
-// === Обработчики ===
-
-function handleLogin(): void
-{
-    global $ADMIN_PASSWORD;
-
+// === Обработка запросов ===
+if ($method === 'POST') {
+    // ВХОД
     $data = getInputData();
-    $password = trim($data['password'] ?? '');
+    $password = isset($data['password']) ? trim((string) $data['password']) : '';
 
     if ($password === '') {
         sendJson(['success' => false, 'error' => 'Пароль не указан'], 400);
@@ -119,17 +91,15 @@ function handleLogin(): void
     }
 
     sendJson(['success' => false, 'error' => 'Неверный пароль'], 401);
-}
 
-function handleCheckAuth(): void
-{
+} elseif ($method === 'GET') {
+    // ПРОВЕРКА АВТОРИЗАЦИИ
     $isAdmin = $_SESSION['admin'] ?? false;
 
     if (!$isAdmin) {
         sendJson(['auth' => false, 'error' => 'Неавторизован'], 403);
     }
 
-    // Проверка таймаута (5 минут)
     $timeout = 300;
     $now = time();
     $authTime = $_SESSION['auth_time'] ?? 0;
@@ -140,28 +110,33 @@ function handleCheckAuth(): void
         sendJson(['auth' => false, 'error' => 'Сессия истекла'], 401);
     }
 
-    // Обновляем время активности
     $_SESSION['last_activity'] = $now;
-
     sendJson([
         'auth' => true,
         'expires_in' => max(0, $timeout - ($now - $authTime)),
     ]);
-}
 
-function handleLogout(): void
-{
-    // Очищаем куки сессии
+} elseif ($method === 'DELETE') {
+    // ВЫХОД
     if (ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
         setcookie(
             session_name(),
             '',
-            ['expires' => time() - 3600, 'path' => $params['path'], 'domain' => $params['domain'], 'secure' => $params['secure'], 'httponly' => true, 'samesite' => $params['samesite'] ?? 'Lax']
+            [
+                'expires' => time() - 3600,
+                'path' => $params['path'],
+                'domain' => $params['domain'] ?? '',
+                'secure' => $params['secure'],
+                'httponly' => true,
+                'samesite' => $params['samesite'] ?? 'Lax',
+            ]
         );
     }
-
     session_unset();
     session_destroy();
     sendJson(['success' => true, 'message' => 'Выход выполнен']);
+
+} else {
+    sendJson(['error' => 'Method not allowed', 'allowed' => ['GET', 'POST', 'DELETE']], 405);
 }

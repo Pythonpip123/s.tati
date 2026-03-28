@@ -312,7 +312,7 @@ if (loginBtn) {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          window.location.href = "/html/admin.html";
+          window.location.href = "/php/admin.php";
         } else {
           alert("Неверный пароль");
         }
