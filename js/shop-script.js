@@ -139,17 +139,30 @@ function initScrollHandler() {
   });
 }
 
-function loadShop() {
-  fetch("/php/list-shop.php")
-    .then((res) => res.json())
-    .then((data) => {
-      const grid = document.getElementById("shopGrid");
-      grid.innerHTML = "";
+// Загрузка магазина
+async function loadShop() {
+  const res = await fetch("/api/get-items.php?target=shop");
+  const items = await res.json();
 
-      data.forEach((item) => {
-        addShopItem(item);
-      });
-    });
+  items.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "item-card";
+    card.innerHTML = `
+            <img src="${item.path}" alt="${escapeHtml(item.name)}">
+            <div class="item-info">
+                <h3 class="item-title">${escapeHtml(item.name)}</h3>
+                <p class="item-price">${formatPrice(item.price)} ₽</p>
+            </div>
+        `;
+    document.querySelector(".shop-container").appendChild(card);
+  });
+}
+
+function formatPrice(price) {
+  return parseFloat(price).toLocaleString("ru-RU", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
 }
 
 function addShopItem(data) {

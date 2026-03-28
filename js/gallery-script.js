@@ -139,24 +139,29 @@ function initScrollHandler() {
   });
 }
 
-function loadGallery() {
-  const masonry = document.querySelector(".masonry");
+// Загрузка галереи
+async function loadGallery() {
+  const res = await fetch("/api/get-items.php?target=gallery");
+  const items = await res.json();
 
-  fetch("/php/list.php")
-    .then((res) => res.json())
-    .then((images) => {
-      images.forEach((url, index) => {
-        const img = document.createElement("img");
-        img.src = url;
+  items.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "item-card";
+    card.innerHTML = `
+            <img src="${item.path}" alt="${escapeHtml(item.name)}">
+            <div class="item-info">
+                <h3 class="item-title">${escapeHtml(item.name)}</h3>
+                <!-- цены нет в галерее -->
+            </div>
+        `;
+    document.querySelector(".gallery-container").appendChild(card);
+  });
+}
 
-        masonry.appendChild(img);
-
-        setTimeout(() => {
-          img.classList.add("show");
-        }, index * 100);
-      });
-    })
-    .catch((err) => console.error("Ошибка загрузки:", err));
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 window.addEventListener("load", () => {
