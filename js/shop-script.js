@@ -140,7 +140,7 @@ function initScrollHandler() {
 }
 
 function loadShop() {
-  fetch("../php/list-shop.php")
+  fetch("/php/list-shop.php")
     .then((res) => res.json())
     .then((data) => {
       const grid = document.getElementById("shopGrid");
@@ -180,7 +180,7 @@ document.getElementById("fileInput").addEventListener("change", function () {
   formData.append("title", title);
   formData.append("price", price);
 
-  fetch("../php/upload-shop.php", {
+  fetch("/php/upload-shop.php", {
     method: "POST",
     body: formData,
   })

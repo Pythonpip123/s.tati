@@ -18,7 +18,7 @@
       content="Картины на заказ с душой от S.TATI"
     />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="icon" type="image/png" href="../favicon.png" />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,6 +34,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
   </head>
+  <link rel="stylesheet" href="../css/gallery.css" />
   <body class="gallery-page">
     <!-- Scroll Progress Indicator -->
     <div class="scroll-progress" id="scrollProgress"></div>
@@ -42,15 +43,15 @@
     <header class="header" id="header">
       <div class="header-container">
         <div class="logo">
-          <a href="index.html#hero" class="logo-text">S.TATI</a>
+          <a href="../index.html#hero" class="logo-text">S.TATI</a>
         </div>
 
         <nav class="nav-menu" id="navMenu">
-          <a href="index.html#hero" class="nav-link">Главная</a>
-          <a href="index.html#how-we-work" class="nav-link">Как работаем</a>
-          <a href="index.html#marquee" class="nav-link">Услуги</a>
+          <a href="../index.html#hero" class="nav-link">Главная</a>
+          <a href="../index.html#how-we-work" class="nav-link">Как работаем</a>
+          <a href="../index.html#marquee" class="nav-link">Услуги</a>
           <a href="#hero" class="nav-link">Работы</a>
-          <a href="index.html#footer" class="nav-link">Контакты</a>
+          <a href="../index.html#footer" class="nav-link">Контакты</a>
         </nav>
 
         <button
@@ -123,16 +124,7 @@
 
       <div class="masonry"></div>
     </section>
-    <!-- ===== PASSWORD MODAL ===== -->
-    <div class="admin-modal" id="passwordModal">
-      <div class="admin-box">
-        <h3 id="adminTitle">Введите пароль</h3>
-        <input type="password" id="adminPassword" placeholder="Пароль" />
-        <button onclick="checkPassword()">Войти</button>
-      </div>
-    </div>
 
-    <link rel="stylesheet" href="../css/gallery.css" />
     <script src="../js/gallery-script.js" defer></script>
   </body>
 </html>

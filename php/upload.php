@@ -1,33 +1,30 @@
 <?php
-$uploadDir = __DIR__ . '../gallery/';
+require "check_auth.php";
 
-$secret = "12345"; // придумай пароль
+$file = $_FILES['file'];
+$title = $_POST['title'];
 
-if ($_POST['password'] !== $secret) {
-    echo json_encode(["error" => "Нет доступа"]);
-    exit;
-}
+$dir = "../gallery/";
+$files = scandir($dir);
 
-if ($_FILES['file']) {
-    $file = $_FILES['file'];
-
-    $allowed = ['image/png', 'image/jpeg', 'image/webp'];
-
-    if (!in_array($file['type'], $allowed)) {
-        echo json_encode(["error" => "Неверный формат"]);
-        exit;
-    }
-    $title = $_POST['title'] ?? '';
-    $fileName = time() . "_" . basename($file['name']);
-    $targetFile = $uploadDir . $fileName;
-
-    if (move_uploaded_file($file['tmp_name'], $targetFile)) {
-        echo json_encode([
-            "success" => true,
-            "title" => $title,
-            "url" => "../gallery/" . $fileName
-        ]);
-    } else {
-        echo json_encode(["error" => "Ошибка загрузки"]);
+$count = 1;
+foreach ($files as $f) {
+    if (preg_match('/g_(\d+)/', $f, $m)) {
+        $count = max($count, $m[1] + 1);
     }
 }
+
+$name = "g_" . $count . ".jpg";
+move_uploaded_file($file['tmp_name'], $dir . $name);
+
+$dataFile = "../data/gallery.json";
+$data = file_exists($dataFile) ? json_decode(file_get_contents($dataFile), true) : [];
+
+$data[] = [
+    "image" => "/gallery/" . $name,
+    "title" => $title
+];
+
+file_put_contents($dataFile, json_encode($data));
+
+echo "ok";

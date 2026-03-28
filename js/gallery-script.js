@@ -142,7 +142,7 @@ function initScrollHandler() {
 function loadGallery() {
   const masonry = document.querySelector(".masonry");
 
-  fetch("../php/list.php")
+  fetch("/php/list.php")
     .then((res) => res.json())
     .then((images) => {
       images.forEach((url, index) => {
@@ -158,6 +158,10 @@ function loadGallery() {
     })
     .catch((err) => console.error("Ошибка загрузки:", err));
 }
+
+window.addEventListener("load", () => {
+  document.body.classList.add("loaded");
+});
 
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {

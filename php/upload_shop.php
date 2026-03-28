@@ -1,52 +1,32 @@
 <?php
-
-$secret = "12345";
-
-if ($_POST['password'] !== $secret) {
-    echo json_encode(["error" => "Нет доступа"]);
-    exit;
-}
-
-$uploadDir = "../shop/";
-$dataFile = "../shop-data.json";
-
-if (!file_exists($uploadDir)) {
-    mkdir($uploadDir, 0777, true);
-}
+require "check_auth.php";
 
 $file = $_FILES['file'];
-$title = $_POST['title'] ?? '';
-$price = $_POST['price'] ?? '';
+$title = $_POST['title'];
+$price = $_POST['price'];
 
-$fileName = time() . "_" . basename($file['name']);
-$targetFile = $uploadDir . $fileName;
+$dir = "../shop/";
+$files = scandir($dir);
 
-$allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-if (!in_array($_FILES['file']['type'], $allowedTypes)) {
-    die("Invalid file type");
+$count = 1;
+foreach ($files as $f) {
+    if (preg_match('/s_(\d+)/', $f, $m)) {
+        $count = max($count, $m[1] + 1);
+    }
 }
 
-move_uploaded_file($file['tmp_name'], $targetFile);
+$name = "s_" . $count . ".jpg";
+move_uploaded_file($file['tmp_name'], $dir . $name);
 
-$url = "../shop/" . $fileName;
+$dataFile = "../data/shop.json";
+$data = file_exists($dataFile) ? json_decode(file_get_contents($dataFile), true) : [];
 
-// читаем JSON
-$data = [];
-
-if (file_exists($dataFile)) {
-    $json = file_get_contents($dataFile);
-    $data = json_decode($json, true) ?? [];
-}
-
-// добавляем новую запись
 $data[] = [
-    "url" => $url,
+    "image" => "/shop/" . $name,
     "title" => $title,
     "price" => $price
 ];
 
-// сохраняем
-file_put_contents($dataFile, json_encode($data, JSON_PRETTY_PRINT));
+file_put_contents($dataFile, json_encode($data));
 
-// ответ
-echo json_encode(end($data));
+echo "ok";

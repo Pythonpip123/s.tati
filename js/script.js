@@ -284,21 +284,53 @@ document.querySelectorAll("a[href]").forEach((link) => {
   }
 });
 
-// ===== ADMIN HOTKEY (ТОЛЬКО НА INDEX) =====
 document.addEventListener("keydown", (e) => {
-  // проверяем что это index.html
   const isIndex =
-    window.location.pathname.includes("index.html") ||
-    window.location.pathname === "/";
+    window.location.pathname === "/" ||
+    window.location.pathname.includes("index.html");
 
   if (!isIndex) return;
 
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "f") {
     e.preventDefault();
-
-    window.location.href = "../php/admin.php";
+    document.getElementById("adminModal").classList.add("active");
   }
 });
+
+const loginBtn = document.getElementById("adminLoginBtn");
+const input = document.getElementById("adminPasswordInput");
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", () => {
+    fetch("/php/auth.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "password=" + encodeURIComponent(input.value),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          window.location.href = "/html/admin.html";
+        } else {
+          alert("Неверный пароль");
+        }
+      });
+  });
+}
+
+function openAdminModal() {
+  adminModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  adminInput.value = "";
+  setTimeout(() => adminInput.focus(), 100);
+}
+
+function closeAdminModal() {
+  adminModal.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
 
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {

@@ -1,12 +1,5 @@
 <?php
-header('Content-Type: application/json');
+require "check_auth.php";
 
-$files = array_diff(scandir(__DIR__ . '/../gallery'), array('.', '..'));
-
-$result = [];
-
-foreach ($files as $file) {
-    $result[] = "/../gallery/" . $file;
-}
-
-echo json_encode($result);
+$file = "../data/gallery.json";
+echo file_exists($file) ? file_get_contents($file) : "[]";

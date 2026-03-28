@@ -2,100 +2,28 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Админ панель</title>
-
-    <link rel="stylesheet" href="../css/style.css" />
-    <link rel="stylesheet" href="../css/gallery.css" />
-
-    <style>
-      body {
-        background: #111;
-        color: white;
-        font-family: Montserrat, sans-serif;
-        padding: 20px;
-      }
-
-      .admin-container {
-        max-width: 600px;
-        margin: auto;
-      }
-
-      h1 {
-        text-align: center;
-        margin-bottom: 30px;
-      }
-
-      input,
-      button {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 15px;
-        border: none;
-        border-radius: 8px;
-      }
-
-      input {
-        background: #222;
-        color: white;
-      }
-
-      button {
-        background: #fff;
-        color: #000;
-        cursor: pointer;
-        font-weight: 600;
-      }
-
-      button:hover {
-        opacity: 0.8;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .preview img {
-        width: 100%;
-        margin-top: 10px;
-        border-radius: 10px;
-      }
-    </style>
+    <title>Admin</title>
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
-
   <body>
-    <div class="admin-container">
-      <h1>Админ панель</h1>
+    <button onclick="logout()" style="position: fixed; top: 10px; right: 10px">
+      Выйти
+    </button>
 
-      <!-- LOGIN -->
-      <div id="loginBlock">
-        <input type="password" id="password" placeholder="Введите пароль" />
-        <button onclick="login()">Войти</button>
-      </div>
+    <h1>Админ панель</h1>
 
-      <!-- PANEL -->
-      <div id="adminPanel" class="hidden">
-        <h2>Загрузка в галерею</h2>
+    <select id="mode">
+      <option value="gallery">Галерея</option>
+      <option value="shop">Магазин</option>
+    </select>
 
-        <input type="file" id="galleryFile" />
-        <input type="text" id="galleryTitle" placeholder="Название" />
+    <input type="file" id="file" />
+    <input type="text" id="title" placeholder="Название" />
+    <input type="number" id="price" placeholder="Цена (для магазина)" />
+    <button onclick="upload()">Загрузить</button>
 
-        <button onclick="uploadGallery()">Загрузить в галерею</button>
+    <div id="list"></div>
 
-        <hr />
-
-        <h2>Загрузка в магазин</h2>
-
-        <input type="file" id="shopFile" />
-        <input type="text" id="shopTitle" placeholder="Название" />
-        <input type="text" id="shopPrice" placeholder="Цена" />
-
-        <button onclick="uploadShop()">Загрузить в магазин</button>
-
-        <div class="preview" id="preview"></div>
-      </div>
-    </div>
-
-    <script src="../js/admin.js"></script>
+    <script src="/js/admin.js"></script>
   </body>
 </html>
