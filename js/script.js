@@ -320,29 +320,41 @@ if (loginBtn) {
   });
 }
 
-function openAdminModal() {
-  adminModal.classList.add("active");
-  document.body.style.overflow = "hidden";
-  adminInput.value = "";
-  setTimeout(() => adminInput.focus(), 100);
-}
-
-function closeAdminModal() {
-  adminModal.classList.remove("active");
-  document.body.style.overflow = "auto";
-}
-
 let captchaWidgetId = null;
+let recaptchaReady = false;
 
-// Открытие модалки
+// Ждём загрузки reCAPTCHA API
+if (typeof grecaptcha !== 'undefined') {
+  recaptchaReady = true;
+} else {
+  window.onRecaptchaReady = function() {
+    recaptchaReady = true;
+  };
+}
+
+// Открытие модалки с капчой
 function openAdminModal() {
-  document.getElementById("adminModal").style.display = "block";
+  const modal = document.getElementById("adminModal");
+  modal.style.display = "block";
+  
+  const input = document.getElementById("adminPasswordInput");
+  if (input) {
+    input.value = "";
+    setTimeout(() => input.focus(), 100);
+  }
 
-  // Рендер капчи (один раз)
-  if (captchaWidgetId === null) {
-    captchaWidgetId = grecaptcha.render("recaptcha-container", {
-      sitekey: "6LeMNp0sAAAAAMaTZ0kDTNE4_u-sT10HwpeEtnE7",
-    });
+  // Рендер капчи (только один раз)
+  if (captchaWidgetId === null && recaptchaReady) {
+    try {
+      captchaWidgetId = grecaptcha.render("recaptcha-container", {
+        sitekey: "6LeMNp0sAAAAAMaTZ0kDTNE4_u-sT10HwpeEtnE7",
+        callback: function(response) {
+          console.log("reCAPTCHA verified:", response);
+        }
+      });
+    } catch (e) {
+      console.error("reCAPTCHA render error:", e);
+    }
   }
 }
 
@@ -352,36 +364,45 @@ function closeAdminModal() {
 }
 
 // Логин
-document.getElementById("adminLoginBtn").addEventListener("click", async () => {
-  const password = document.getElementById("adminPasswordInput").value;
+const loginBtn = document.getElementById("adminLoginBtn");
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
+    const password = document.getElementById("adminPasswordInput").value;
 
-  const captcha = grecaptcha.getResponse(captchaWidgetId);
+    // Проверяем что капча загрузилась
+    if (!recaptchaReady || captchaWidgetId === null) {
+      alert("reCAPTCHA ещё не загрузилась. Подождите немного.");
+      return;
+    }
 
-  if (!captcha) {
-    alert("Подтверди что ты не робот");
-    return;
-  }
+    const captcha = grecaptcha.getResponse(captchaWidgetId);
 
-  const res = await fetch("/php/auth.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      password,
-      captcha,
-    }),
+    if (!captcha) {
+      alert("Подтверди что ты не робот");
+      return;
+    }
+
+    const res = await fetch("/php/auth.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        password,
+        captcha,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      location.href = "/php/admin.php";
+    } else {
+      alert(data.error || "Ошибка входа");
+      grecaptcha.reset(captchaWidgetId);
+    }
   });
-
-  const data = await res.json();
-
-  if (data.success) {
-    location.href = "/admin.html";
-  } else {
-    alert(data.error);
-    grecaptcha.reset(captchaWidgetId);
-  }
-});
+}
 
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
