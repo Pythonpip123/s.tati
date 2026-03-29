@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "name": "Лев",
+        "filename": "g_000001.png",
+        "path": "/gallery/g_000001.png",
+        "uploaded_at": "2026-03-29 10:26:19"
+    },
+    {
+        "id": 2,
+        "name": "Мексиканка",
+        "filename": "g_000002.png",
+        "path": "/gallery/g_000002.png",
+        "uploaded_at": "2026-03-29 10:26:32"
+    },
+    {
+        "id": 3,
+        "name": "Милый котик",
+        "filename": "g_000003.png",
+        "path": "/gallery/g_000003.png",
+        "uploaded_at": "2026-03-29 10:26:58"
+    },
+    {
+        "id": 4,
+        "name": "Крылья",
+        "filename": "g_000004.png",
+        "path": "/gallery/g_000004.png",
+        "uploaded_at": "2026-03-29 14:39:28"
+    },
+    {
+        "id": 5,
+        "name": "Слон",
+        "filename": "g_000005.png",
+        "path": "/gallery/g_000005.png",
+        "uploaded_at": "2026-03-29 14:39:59"
+    },
+    {
+        "id": 6,
+        "name": "Кот в костюме",
+        "filename": "g_000006.png",
+        "path": "/gallery/g_000006.png",
+        "uploaded_at": "2026-03-29 14:40:29"
+    },
+    {
+        "id": 7,
+        "name": "Счастливая корги",
+        "filename": "g_000007.png",
+        "path": "/gallery/g_000007.png",
+        "uploaded_at": "2026-03-29 14:41:39"
+    },
+    {
+        "id": 8,
+        "name": "Корги",
+        "filename": "g_000008.png",
+        "path": "/gallery/g_000008.png",
+        "uploaded_at": "2026-03-29 14:42:11"
+    },
+    {
+        "id": 9,
+        "name": "Ангел",
+        "filename": "g_000009.png",
+        "path": "/gallery/g_000009.png",
+        "uploaded_at": "2026-03-29 14:42:37"
+    },
+    {
+        "id": 10,
+        "name": "Зимняя сказка",
+        "filename": "g_000010.png",
+        "path": "/gallery/g_000010.png",
+        "uploaded_at": "2026-03-29 14:43:18"
+    }
+]
