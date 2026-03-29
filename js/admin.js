@@ -5,13 +5,22 @@
 // === Глобальные константы ===
 const ADMIN_SHORTCUT = { ctrl: true, shift: true, key: "F" };
 const SESSION_CHECK_INTERVAL = 60000; // 1 минута
-const DROP_ZONE = document.getElementById("drop-zone");
-const FILE_INPUT = document.getElementById("file-input");
-const UPLOAD_TYPE = document.getElementsByName("upload-type");
-const PRICE_FIELD = document.getElementById("price-field");
-const UPLOAD_BTN = document.getElementById("upload-btn");
-const STATUS = document.getElementById("upload-status");
-const LOGOUT_BTN = document.getElementById("logout-btn");
+
+// Функция для безопасного получения элементов
+function getElement(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`⚠️ Элемент #${id} не найден в DOM`);
+  return el;
+}
+
+// Инициализируем элементы только когда они нужны
+let DROP_ZONE,
+  FILE_INPUT,
+  UPLOAD_TYPE,
+  PRICE_FIELD,
+  UPLOAD_BTN,
+  STATUS,
+  LOGOUT_BTN;
 
 // === Инициализация ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -24,6 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(showPasswordModal, 300);
     }
   }
+
+  // Инициализируем элементы
+  DROP_ZONE = getElement("drop-zone");
+  FILE_INPUT = getElement("file-input");
+  UPLOAD_TYPE = document.getElementsByName("upload-type");
+  PRICE_FIELD = getElement("price-field");
+  UPLOAD_BTN = getElement("upload-btn");
+  STATUS = getElement("upload-status");
+  LOGOUT_BTN = getElement("logout-btn");
+
   setupKeyboardShortcut();
   setupDropZone();
   setupTypeSwitcher();
@@ -95,7 +114,7 @@ function showPasswordModal() {
   confirmBtn.onclick = async () => {
     const password = input.value.trim();
     if (!password) {
-      showError("Введите пароль", modal);
+      showError("Вв��дите пароль", modal);
       return;
     }
 
@@ -222,20 +241,26 @@ function handleFileSelect(file) {
   // Показываем превью (опционально)
   const reader = new FileReader();
   reader.onload = (e) => {
-    DROP_ZONE.innerHTML = `<img src="${e.target.result}" style="max-height:200px;border-radius:12px;">`;
+    if (DROP_ZONE) {
+      DROP_ZONE.innerHTML = `<img src="${e.target.result}" style="max-height:200px;border-radius:12px;">`;
+    }
   };
   reader.readAsDataURL(file);
 
   // Сохраняем файл для отправки
-  DROP_ZONE.dataset.file = JSON.stringify({
-    name: file.name,
-    type: file.type,
-    size: file.size,
-  });
+  if (DROP_ZONE) {
+    DROP_ZONE.dataset.file = JSON.stringify({
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+  }
 }
 
 // === Переключатель типа загрузки ===
 function setupTypeSwitcher() {
+  if (UPLOAD_TYPE.length === 0 || !PRICE_FIELD) return;
+
   UPLOAD_TYPE.forEach((radio) => {
     radio.addEventListener("change", () => {
       const isShop =
@@ -246,6 +271,7 @@ function setupTypeSwitcher() {
   });
 }
 
+// === Кнопка загрузки ===
 // === Кнопка загрузки ===
 function setupUploadButton() {
   if (!UPLOAD_BTN) return;
@@ -281,7 +307,7 @@ function setupUploadButton() {
 
     // Подготовка FormData
     const formData = new FormData();
-    formData.append("target", target);
+    formData.append("target", target); // 👈 Добавляем target
     formData.append("name", name);
     if (target === "shop") formData.append("price", price);
 
@@ -290,7 +316,7 @@ function setupUploadButton() {
       formData.append("image", FILE_INPUT.files[0]);
     }
 
-    // UI: показываем загрузку
+    // UI: показываем загру��ку
     UPLOAD_BTN.disabled = true;
     UPLOAD_BTN.textContent = "Загрузка...";
     STATUS.className = "";

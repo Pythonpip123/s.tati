@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+$RECAPTCHA_SECRET = getenv('RECAPTCHA_SECRET') ?: '6LeMNp0sAAAAAMaTZ0kDTNE4_u-sT10HwpeEtnE7';
 
 /**
  * auth.php — Админ-аутентификация (совместим с JSON и form-encoded)
@@ -30,7 +31,38 @@ if (session_status() === PHP_SESSION_NONE) {
 header('Content-Type: application/json; charset=utf-8');
 
 // 🔑 ПАРОЛЬ — ЗАМЕНИ НА СВОЙ!
-$ADMIN_PASSWORD = getenv('ADMIN_PASS') ?: '12345';
+$ADMIN_PASSWORD = getenv('ADMIN_PASS') ?: 'Pidor123';
+
+function verifyCaptcha(string $token): bool
+{
+    global $RECAPTCHA_SECRET;
+
+    $url = 'https://www.google.com/recaptcha/api/siteverify';
+
+    $data = [
+        'secret' => $RECAPTCHA_SECRET,
+        'response' => $token,
+        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
+    ];
+
+    $options = [
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'content' => http_build_query($data)
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $result = file_get_contents($url, false, $context);
+
+    if (!$result)
+        return false;
+
+    $json = json_decode($result, true);
+
+    return $json['success'] ?? false;
+}
 
 /**
  * Отправка JSON-ответа

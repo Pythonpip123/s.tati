@@ -163,11 +163,15 @@ function formatPrice(price) {
 function normalizeImagePath(path) {
   if (!path) return "";
 
-  if (path.startsWith("/gallery/")) {
+  if (/^https?:\/\//i.test(path) || path.startsWith("../")) {
+    return path;
+  }
+
+  if (path.startsWith("/gallery/") || path.startsWith("/shop/")) {
     return `..${path}`;
   }
 
-  return path;
+  return path.startsWith("/") ? `..${path}` : path;
 }
 
 function createShopCard(item) {

@@ -332,6 +332,57 @@ function closeAdminModal() {
   document.body.style.overflow = "auto";
 }
 
+let captchaWidgetId = null;
+
+// Открытие модалки
+function openAdminModal() {
+  document.getElementById("adminModal").style.display = "block";
+
+  // Рендер капчи (один раз)
+  if (captchaWidgetId === null) {
+    captchaWidgetId = grecaptcha.render("recaptcha-container", {
+      sitekey: "6LeMNp0sAAAAAMaTZ0kDTNE4_u-sT10HwpeEtnE7",
+    });
+  }
+}
+
+// Закрытие
+function closeAdminModal() {
+  document.getElementById("adminModal").style.display = "none";
+}
+
+// Логин
+document.getElementById("adminLoginBtn").addEventListener("click", async () => {
+  const password = document.getElementById("adminPasswordInput").value;
+
+  const captcha = grecaptcha.getResponse(captchaWidgetId);
+
+  if (!captcha) {
+    alert("Подтверди что ты не робот");
+    return;
+  }
+
+  const res = await fetch("/php/auth.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      password,
+      captcha,
+    }),
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    location.href = "/admin.html";
+  } else {
+    alert(data.error);
+    grecaptcha.reset(captchaWidgetId);
+  }
+});
+
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
   progressBar = document.getElementById("scrollProgress");

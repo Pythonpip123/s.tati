@@ -117,7 +117,11 @@
         <a href="#marquee" class="mobile-nav-link" onclick="toggleMenu()">
           <i class="fas fa-list"></i> Услуги
         </a>
-        <a href="gallery.html" class="mobile-nav-link" onclick="toggleMenu()">
+        <a
+          href="html/gallery.html"
+          class="mobile-nav-link"
+          onclick="toggleMenu()"
+        >
           <i class="fas fa-list"></i> Работы
         </a>
         <a href="#footer" class="mobile-nav-link" onclick="toggleMenu()">
@@ -325,7 +329,7 @@
     </button>
 
     <!-- ADMIN LOGIN MODAL -->
-    <div id="adminModal" class="admin-modal">
+    <div id="adminModal" class="admin-modal" style="display: none">
       <div class="admin-modal-content">
         <h2>Вход в админ панель</h2>
 
@@ -335,10 +339,20 @@
           placeholder="Введите пароль"
         />
 
+        <!-- КАПЧА -->
+        <div id="recaptcha-container"></div>
+
         <button id="adminLoginBtn">Войти</button>
-        <button id="adminCloseBtn">Отмена</button>
+        <button onclick="closeAdminModal()">Отмена</button>
       </div>
     </div>
+
+    <!-- reCAPTCHA API -->
+    <script
+      src="https://www.google.com/recaptcha/api.js?render=explicit"
+      async
+      defer
+    ></script>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
